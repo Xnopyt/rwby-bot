@@ -1,9 +1,11 @@
+from python_anticaptcha import AnticaptchaClient, NoCaptchaTaskProxylessTask, AnticaptchaException
 import discord
 import asyncio
 import requests
 import json
 import threading
 import time
+import random
 
 f = open("tokens.txt")
 lines = f.readlines()
@@ -18,6 +20,7 @@ card_info["year"] = lines[6].rstrip()
 card_info["cvv"] = lines[7].rstrip()
 card_info["version"] = "4.9.3"
 card_info["key"] = "ewr1-2beFfL1PHAOpBH03tu5h6j"
+anticaptchaapikey = lines[8].rstrip()
 f.close()
 client = discord.Client()
 loop = asyncio.get_event_loop()
@@ -83,3 +86,35 @@ def activate_first(token, card_info):
     sub_uuid = json.loads(r.text[1:-1])["uuid"]
     url = "https://business-service.roosterteeth.com/api/v1/recurly_service/subscriptions/"+sub_uuid+"/cancel"
     requests.delete(url, headers=headers)
+
+def generate_rt_account(api_key):
+    site_key = '6LeZAyAUAAAAAKXhHLkm7QSka-pPFSRLgL7fjS_g'
+    url = 'https://roosterteeth.com/signup/'
+    random.seed=(time.ctime())
+    email = ''.join(random.choice("ABCDEFGHIJKLMNOPQRSTUVWXYZ") for _ in range(10))+"@how2trianglemuygud.com"
+    password = ''.join(random.choice("ABCDEFGHIJKLMNOPQRSTUVWXYZ") for _ in range(10))
+    try:
+        client_anticaptcha = AnticaptchaClient(api_key)
+        task = NoCaptchaTaskProxylessTask(url, site_key)
+        job = client_anticaptcha.createTask(task)
+        job.join()
+        recaptcha_response = job.get_solution_response()
+    except AnticaptchaException as e:
+        if e.error_code == 'ERROR_ZERO_BALANCE':
+            recaptcha_response = "NO BAL"
+        else:
+            recaptcha_response = "UNIDENTIFIED ERROR"
+    if recaptcha_response == "NO BAL" or recaptcha_response == "UNIDENTIFIED ERROR":
+        return recaptcha_response
+    data = dict()
+    user = dict()
+    user["email"] = email
+    user["password"] = password
+    data["recaptcha_response"] = recaptcha_response
+    data["user"] = user
+    data = json.dumps(data)
+    r = requests.post("https://business-service.roosterteeth.com/api/v1/users", data=data)
+    if "error" in r:
+        return False
+    else:
+        return email,password
