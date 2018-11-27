@@ -11,6 +11,8 @@ global msg_queue
 global current
 global bot_state
 global bot_state_cache
+global updating
+updating = False
 bot_state_cache = "Jeff is god"
 msg_queue = list()
 f = open("tokens.txt")
@@ -39,6 +41,10 @@ async def on_ready():
 
 @client.event
 async def on_message(msg):
+    global updating
+    if updating == True:
+        return
+    updating = True
     if not hasattr(msg.author,"bot") or not msg.author.name == "sdfsdfsdfghfgjkfgjdfhsdjedrtghj":
         return
     await client.delete_message(msg)
@@ -51,6 +57,7 @@ async def on_message(msg):
         for chan in channels:
             await client.send_message(chan, msg_queue[0])
         del msg_queue[0]
+    updating = False
 
 class Bot(threading.Thread):
     def __init__(self, name):
