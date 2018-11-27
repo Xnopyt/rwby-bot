@@ -8,6 +8,8 @@ import time
 import random
 
 global msg_queue
+global current
+global bot_state
 msg_queue = list()
 f = open("tokens.txt")
 lines = f.readlines()
@@ -30,18 +32,23 @@ bot_state = "Bot init in progress, please wait..."
 
 @client.event
 async def on_ready():
+    global bot_state 
     channels = [client.get_channel("445190274902261770")]
     print("Connected to discord!")
-    bot_state_cache = "NOT SET YET!"
+    run = 0
+    await client.change_presence(game=discord.Game(name=bot_state))
     while True:
-        if not bot_state == bot_state_cache:
+        if run == 20:
+            run = 0
             await client.change_presence(game=discord.Game(name=bot_state))
-            bot_state_cache = bot_state
+        else:
+            run = run + 1
         if len(msg_queue) > 0:
             for chan in channels:
                 await client.send_message(chan, msg_queue[0])
             del msg_queue[0]
         asyncio.sleep(1)
+        time.sleep(1)
 
 class Bot(threading.Thread):
     def __init__(self, name):
@@ -150,7 +157,7 @@ def parse_latest_video(token):
 
 def update_json_info(magic):
     msg_queue.append("Compiling results and storing to the server...")
-    magic_short, magic_long = magic
+    magic_long, magic_short = magic.split("-")
     r = requests.get("https://svod-be.roosterteeth.com/api/v1/seasons/rwby-volume-6/episodes?order=des&per_page=1")
     video = json.loads(r.text)
     epnum = video["data"][0]["attributes"]["season_number"]
@@ -162,6 +169,41 @@ def update_json_info(magic):
     site_info["magic_long"] = magic_long
     site_info = json.dumps(site_info)
     f = open("rwby_info.json", "w+")
-    lines[0] = site_info
+    lines = list()
+    lines.append(site_info)
     f.writelines(lines)
     f.close()
+
+def setup():
+    global bot_state
+    msg_queue.append("Initalizing...")
+    msg_queue.append("Comparing stored info against the server...")
+    r = requests.get("https://svod-be.roosterteeth.com/api/v1/seasons/rwby-volume-6/episodes?order=des&per_page=1")
+    json_data = json.loads(r.text)
+    current = json_data["data"][0]["uuid"]
+    f = open("rwby_info.json")
+    lines = f.readlines()
+    f.close()
+    info = json.loads(lines[0].rstrip())
+    if not info["epnum"] == json_data["data"][0]["attributes"]["season_number"]:
+        msg_queue.append("Local data is out of data, grabbing latest episode and updating H2TMG.")
+        login = generate_rt_account(anticaptchaapikey)
+        if not type(login) == tuple:
+            msg_queue.append("Something went wrong...")
+            return
+        user, password = login
+        token = grab_oauth(user, password)
+        activate_first(token,card_info)
+        magic = parse_latest_video(token)
+        update_json_info(magic)
+        msg_queue.append("Done! Init finished!")
+    else:
+        msg_queue.append("Everything looks good! Init finished!")
+    f = open("rwby_info.json")
+    lines = f.readlines()
+    f.close()
+    info = json.loads(lines[0].rstrip())
+    bot_state = "Ep " + str(info["epnum"]) + " - " + info["title"]
+
+setup()
+    
