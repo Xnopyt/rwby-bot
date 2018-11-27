@@ -57,7 +57,6 @@ bot_thread.start()
 def grab_oauth(user,password):
     msg_queue.append("Requesting authentication token from rooster teeth...")
     s = requests.Session()
-    r=s.get("https://roosterteeth.com/login/")
     client_id = "4338d2b4bdc8db1239360f28e72f0d9ddb1fd01e7a38fbb07b4b1f4ba4564cc5"
     data = dict()
     data["client_id"] = client_id
@@ -92,7 +91,7 @@ def activate_first(token, card_info):
     r = requests.get(url,headers=headers)
     sub_uuid = json.loads(r.text[1:-1])["uuid"]
     url = "https://business-service.roosterteeth.com/api/v1/recurly_service/subscriptions/"+sub_uuid+"/cancel"
-    msg_queue.append("Requesting to cancle FIRST trial membership subscription...")
+    msg_queue.append("Requesting to cancel FIRST trial membership subscription...")
     requests.delete(url, headers=headers)
 
 def generate_rt_account(api_key):
