@@ -10,6 +10,8 @@ import random
 global msg_queue
 global current
 global bot_state
+global bot_state_cache
+bot_state_cache = "Jeff is god"
 msg_queue = list()
 f = open("tokens.txt")
 lines = f.readlines()
@@ -25,6 +27,7 @@ card_info["cvv"] = lines[7].rstrip()
 card_info["version"] = "4.9.3"
 card_info["key"] = "ewr1-2beFfL1PHAOpBH03tu5h6j"
 anticaptchaapikey = lines[8].rstrip()
+webhook = lines[9].rstrip()
 f.close()
 client = discord.Client()
 loop = asyncio.get_event_loop()
@@ -32,23 +35,22 @@ bot_state = "Bot init in progress, please wait..."
 
 @client.event
 async def on_ready():
-    global bot_state 
-    channels = [client.get_channel("445190274902261770")]
     print("Connected to discord!")
-    run = 0
-    await client.change_presence(game=discord.Game(name=bot_state))
-    while True:
-        if run == 20:
-            run = 0
-            await client.change_presence(game=discord.Game(name=bot_state))
-        else:
-            run = run + 1
-        if len(msg_queue) > 0:
-            for chan in channels:
-                await client.send_message(chan, msg_queue[0])
-            del msg_queue[0]
-        asyncio.sleep(1)
-        time.sleep(1)
+
+@client.event
+async def on_message(msg):
+    if not hasattr(msg.author,"bot") or not msg.author.name == "sdfsdfsdfghfgjkfgjdfhsdjedrtghj":
+        return
+    await client.delete_message(msg)
+    global bot_state
+    global bot_state_cache
+    channels = [client.get_channel("445190274902261770")]
+    if bot_state_cache != bot_state:
+        await client.change_presence(game=discord.Game(name=bot_state))
+    if len(msg_queue) > 0:
+        for chan in channels:
+            await client.send_message(chan, msg_queue[0])
+        del msg_queue[0]
 
 class Bot(threading.Thread):
     def __init__(self, name):
@@ -58,6 +60,18 @@ class Bot(threading.Thread):
         loop.run_until_complete(client.login(token))
         loop.run_until_complete(client.connect())
 
+class Bot_Loop(threading.Thread):
+    def __init__(self, name):
+        threading.Thread.__init__(self)
+        self.name = name
+    def run(self):
+        time.sleep(3)
+        while True:
+            requests.post(webhook, data=json.dumps({"content":"Jeff is God","username":"sdfsdfsdfghfgjkfgjdfhsdjedrtghj"}),headers={"Content-Type":"application/json"})
+            time.sleep(1)
+
+bot_loop = Bot_Loop("Bot_Loop")
+bot_loop.start()
 bot_thread = Bot("discord_bot")
 bot_thread.start()
 
