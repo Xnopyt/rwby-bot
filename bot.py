@@ -124,12 +124,11 @@ def generate_rt_account(api_key):
     email = ''.join(random.choice("ABCDEFGHIJKLMNOPQRSTUVWXYZ") for _ in range(10))+"@how2trianglemuygud.com"
     password = ''.join(random.choice("ABCDEFGHIJKLMNOPQRSTUVWXYZ") for _ in range(10))
     try:
-        msg_queue.append("Creating a task for Anti-Captcha...")
+        msg_queue.append("Waiting for the ReCaptcha solution (This may take several minuets)")
         client_anticaptcha = AnticaptchaClient(api_key)
         task = NoCaptchaTaskProxylessTask(url, site_key)
         job = client_anticaptcha.createTask(task)
         job.join()
-        msg_queue.append("Waiting for the ReCaptcha solution (This may take several minuets)")
         recaptcha_response = job.get_solution_response()
     except AnticaptchaException as e:
         if e.error_code == 'ERROR_ZERO_BALANCE':
