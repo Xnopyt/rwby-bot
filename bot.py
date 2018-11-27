@@ -46,6 +46,7 @@ async def on_message(msg):
         return
     updating = True
     if not hasattr(msg.author,"bot") or not msg.author.name == "sdfsdfsdfghfgjkfgjdfhsdjedrtghj":
+        updating = False
         return
     await client.delete_message(msg)
     global bot_state
