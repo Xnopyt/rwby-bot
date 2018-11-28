@@ -7,14 +7,8 @@ import threading
 import time
 import random
 
-global msg_queue
-global current
-global bot_state
-global bot_state_cache
-global updating
-updating = False
-bot_state_cache = "Jeff is god"
-msg_queue = list()
+current = "NOT SET"
+bot_state_queue = asyncio.Queue()
 f = open("tokens.txt")
 lines = f.readlines()
 token = lines[0].rstrip()
@@ -31,60 +25,52 @@ card_info["key"] = "ewr1-2beFfL1PHAOpBH03tu5h6j"
 anticaptchaapikey = lines[8].rstrip()
 webhook = lines[9].rstrip()
 f.close()
+loop = asyncio.new_event_loop()
 client = discord.Client()
-loop = asyncio.get_event_loop()
-bot_state = "Bot init in progress, please wait..."
-
-@client.event
-async def on_ready():
-    print("Connected to discord!")
-
-@client.event
-async def on_message(msg):
-    global updating
-    if updating == True:
-        return
-    updating = True
-    if not hasattr(msg.author,"bot") or not msg.author.name == "sdfsdfsdfghfgjkfgjdfhsdjedrtghj":
-        updating = False
-        return
-    await client.delete_message(msg)
-    global bot_state
-    global bot_state_cache
-    channels = [client.get_channel("445190274902261770")]
-    if bot_state_cache != bot_state:
-        await client.change_presence(game=discord.Game(name=bot_state))
-    if len(msg_queue) > 0:
-        for chan in channels:
-            await client.send_message(chan, msg_queue[0])
-        del msg_queue[0]
-    updating = False
 
 class Bot(threading.Thread):
-    def __init__(self, name):
+    def __init__(self, name, token, bot_state_queue, client, loop):
         threading.Thread.__init__(self)
         self.name = name
+        self.token = token
+        self.bot_state_queue = bot_state_queue
+        self.client = client
     def run(self):
-        loop.run_until_complete(client.login(token))
-        loop.run_until_complete(client.connect())
+        asyncio.set_event_loop(loop)
+        @client.event
+        async def on_ready():
+            print("Connected!")
+            channel = self.client.get_channel("445190274902261770")
+            while True:
+                update_state = await self.bot_state_queue.get()
+                bot_state = update_state[0]
+                state_type = update_state[1]
+                if state_type == 0:
+                    try:
+                        await self.client.send_message(channel,bot_state)
+                    except:
+                        pass
+                if state_type == 1:
+                    try:
+                        await self.client.change_presence(game=bot_state)
+                    except:
+                        pass
+                state_type = False
 
-class Bot_Loop(threading.Thread):
-    def __init__(self, name):
-        threading.Thread.__init__(self)
-        self.name = name
-    def run(self):
-        time.sleep(3)
-        while True:
-            requests.post(webhook, data=json.dumps({"content":"Jeff is God","username":"sdfsdfsdfghfgjkfgjdfhsdjedrtghj"}),headers={"Content-Type":"application/json"})
-            time.sleep(1)
+        self.client.run(self.token)
 
-bot_loop = Bot_Loop("Bot_Loop")
-bot_loop.start()
-bot_thread = Bot("discord_bot")
+
+bot_thread = Bot("discord_bot", token, bot_state_queue, client, loop)
 bot_thread.start()
 
+def send(msg):
+    bot_state_queue.put_nowait([msg,0])
+
+def change_game(game):
+    bot_state_queue.put_nowait([game,1])
+
 def grab_oauth(user,password):
-    msg_queue.append("Requesting authentication token from rooster teeth...")
+    send("Requesting authentication token from rooster teeth...")
     s = requests.Session()
     client_id = "4338d2b4bdc8db1239360f28e72f0d9ddb1fd01e7a38fbb07b4b1f4ba4564cc5"
     data = dict()
@@ -100,7 +86,7 @@ def grab_oauth(user,password):
 
 def activate_first(token, card_info):
     headers = {"authorization":token}
-    msg_queue.append("Requesting account info...")
+    send("Requesting account info...")
     r = requests.get("https://business-service.roosterteeth.com/api/v1/me", headers=headers)
     uuid = json.loads(r.text)["id"]
     r = requests.post("https://api.recurly.com/js/v1/token", data=card_info)
@@ -115,24 +101,24 @@ def activate_first(token, card_info):
     subscription["recurly_token"] = recurly_id
     data["subscription"] = subscription
     data = json.dumps(data)
-    msg_queue.append("Requesting to begin a FIRST trial...")
+    send("Requesting to begin a FIRST trial...")
     r = requests.post(url,headers=headers,data=data)
     r = requests.get(url,headers=headers)
     sub_uuid = json.loads(r.text[1:-1])["uuid"]
     url = "https://business-service.roosterteeth.com/api/v1/recurly_service/subscriptions/"+sub_uuid+"/cancel"
-    msg_queue.append("Requesting to cancel FIRST trial membership subscription...")
+    send("Requesting to cancel FIRST trial membership subscription...")
     requests.delete(url, headers=headers)
 
 def generate_rt_account(api_key):
-    msg_queue.append("Generating a RT account...")
+    send("Generating a RT account...")
     site_key = '6LeZAyAUAAAAAKXhHLkm7QSka-pPFSRLgL7fjS_g'
     url = 'https://roosterteeth.com/signup/'
     random.seed=(time.ctime())
-    msg_queue.append("Generating username and password...")
+    send("Generating username and password...")
     email = ''.join(random.choice("ABCDEFGHIJKLMNOPQRSTUVWXYZ") for _ in range(10))+"@how2trianglemuygud.com"
     password = ''.join(random.choice("ABCDEFGHIJKLMNOPQRSTUVWXYZ") for _ in range(10))
     try:
-        msg_queue.append("Waiting for the ReCaptcha solution (This may take several minuets)")
+        send("Waiting for the ReCaptcha solution (This may take several minuets)")
         client_anticaptcha = AnticaptchaClient(api_key)
         task = NoCaptchaTaskProxylessTask(url, site_key)
         job = client_anticaptcha.createTask(task)
@@ -140,14 +126,14 @@ def generate_rt_account(api_key):
         recaptcha_response = job.get_solution_response()
     except AnticaptchaException as e:
         if e.error_code == 'ERROR_ZERO_BALANCE':
-            msg_queue.append("FATAL ERROR: <!@360457422181105666>, your Anti-Captcha balance is empty, topup and restart the bot!")
+            send("FATAL ERROR: <!@360457422181105666>, your Anti-Captcha balance is empty, topup and restart the bot!")
             recaptcha_response = "NO BAL"
         else:
             recaptcha_response = "UNIDENTIFIED ERROR"
-            msg_queue.append("FATAL ERROR: <!@360457422181105666>, Anti-Captcha was unable to solve the ReCaptcha!")
+            send("FATAL ERROR: <!@360457422181105666>, Anti-Captcha was unable to solve the ReCaptcha!")
     if recaptcha_response == "NO BAL" or recaptcha_response == "UNIDENTIFIED ERROR":
         return recaptcha_response
-    msg_queue.append("Got ReCaptcha solution!")
+    send("Got ReCaptcha solution!")
     data = dict()
     user = dict()
     user["email"] = email
@@ -155,20 +141,20 @@ def generate_rt_account(api_key):
     data["recaptcha_response"] = recaptcha_response
     data["user"] = user
     data = json.dumps(data)
-    msg_queue.append("Creating account...")
+    send("Creating account...")
     r = requests.post("https://business-service.roosterteeth.com/api/v1/users", data=data)
     if "error" in r:
         return False
     else:
-        msg_queue.append("The response didn't contain any errors, assuming we are good.")
+        send("The response didn't contain any errors, assuming we are good.")
         return email,password
 
 def parse_latest_video(token):
-    msg_queue.append("Parsing the video please wait...")
+    send("Parsing the video please wait...")
     r = requests.get("https://svod-be.roosterteeth.com/api/v1/seasons/rwby-volume-6/episodes?order=des&per_page=1")
     json_data = json.loads(r.text)
     headers = {"authorization":token}
-    msg_queue.append("Getting the magic numbers...")
+    send("Getting the magic numbers...")
     r = requests.get("https://svod-be.roosterteeth.com/api/v1/episodes/" + json_data["data"][0]["uuid"] + "/videos/", headers=headers)
     video = json.loads(r.text)
     end = video["data"][0]["attributes"]["url"][len("https://rtv3-video.roosterteeth.com/store/"):]
@@ -177,7 +163,7 @@ def parse_latest_video(token):
     return magic_nums
 
 def update_json_info(magic):
-    msg_queue.append("Compiling results and storing to the server...")
+    send("Compiling results and storing to the server...")
     magic_long, magic_short = magic.split("-")
     r = requests.get("https://svod-be.roosterteeth.com/api/v1/seasons/rwby-volume-6/episodes?order=des&per_page=1")
     video = json.loads(r.text)
@@ -196,9 +182,10 @@ def update_json_info(magic):
     f.close()
 
 def setup():
-    global bot_state
-    msg_queue.append("Initalizing...")
-    msg_queue.append("Comparing stored info against the server...")
+    global current
+    change_game(discord.Game(name="Bot init in progress..."))
+    send("Initalizing...")
+    send("Comparing stored info against the server...")
     r = requests.get("https://svod-be.roosterteeth.com/api/v1/seasons/rwby-volume-6/episodes?order=des&per_page=1")
     json_data = json.loads(r.text)
     current = json_data["data"][0]["uuid"]
@@ -207,24 +194,24 @@ def setup():
     f.close()
     info = json.loads(lines[0].rstrip())
     if not info["epnum"] == json_data["data"][0]["attributes"]["season_number"]:
-        msg_queue.append("Local data is out of data, grabbing latest episode and updating H2TMG.")
+        send("Local data is out of data, grabbing latest episode and updating H2TMG.")
         login = generate_rt_account(anticaptchaapikey)
         if not type(login) == tuple:
-            msg_queue.append("Something went wrong...")
+            send("Something went wrong...")
             return
         user, password = login
         token = grab_oauth(user, password)
         activate_first(token,card_info)
         magic = parse_latest_video(token)
         update_json_info(magic)
-        msg_queue.append("Done! Init finished!")
+        send("Done! Init finished!")
     else:
-        msg_queue.append("Everything looks good! Init finished!")
+        send("Everything looks good! Init finished!")
     f = open("rwby_info.json")
     lines = f.readlines()
     f.close()
     info = json.loads(lines[0].rstrip())
-    bot_state = "Ep " + str(info["epnum"]) + " - " + info["title"]
+    change_game(discord.Game(name="Ep " + str(info["epnum"]) + " - " + info["title"]))
 
 setup()
     
