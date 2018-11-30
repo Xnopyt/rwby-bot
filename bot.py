@@ -40,7 +40,7 @@ class Bot(threading.Thread):
         @client.event
         async def on_ready():
             print("Connected!")
-            channel = self.client.get_channel("445190274902261770")
+            channel = self.client.get_channel("433195705486540800")
             while True:
                 update_state = await self.bot_state_queue.get()
                 bot_state = update_state[0]
