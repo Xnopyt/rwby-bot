@@ -23,7 +23,6 @@ card_info["cvv"] = lines[7].rstrip()
 card_info["version"] = "4.9.3"
 card_info["key"] = "ewr1-2beFfL1PHAOpBH03tu5h6j"
 anticaptchaapikey = lines[8].rstrip()
-webhook = lines[9].rstrip()
 f.close()
 loop = asyncio.new_event_loop()
 client = discord.Client()
