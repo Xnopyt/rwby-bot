@@ -7,7 +7,7 @@ import threading
 import time
 import random
 
-current = "NOT SET"
+current = False
 bot_state_queue = asyncio.Queue()
 f = open("tokens.txt")
 lines = f.readlines()
@@ -115,10 +115,10 @@ def generate_rt_account(api_key):
     url = 'https://roosterteeth.com/signup/'
     random.seed=(time.ctime())
     send("Generating username and password...")
-    email = ''.join(random.choice("ABCDEFGHIJKLMNOPQRSTUVWXYZ") for _ in range(10))+"@how2trianglemuygud.com"
+    email = ''.join(random.choice("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890") for _ in range(15))+"@how2trianglemuygud.com"
     password = ''.join(random.choice("ABCDEFGHIJKLMNOPQRSTUVWXYZ") for _ in range(10))
     try:
-        send("Waiting for the ReCaptcha solution (This may take several minuets)")
+        send("Waiting for the ReCaptcha solution (This may take several minutes)")
         client_anticaptcha = AnticaptchaClient(api_key)
         task = NoCaptchaTaskProxylessTask(url, site_key)
         job = client_anticaptcha.createTask(task)
@@ -180,6 +180,18 @@ def update_json_info(magic):
     lines.append(site_info)
     f.writelines(lines)
     f.close()
+    
+def update():
+    send("Updating local stream data....")
+    login = generate_rt_account(anticaptchaapikey)
+    if not type(login) == tuple:
+        send("Something went wrong...")
+        return
+    user, password = login
+    token = grab_oauth(user, password)
+    activate_first(token,card_info)
+    magic = parse_latest_video(token)
+    update_json_info(magic)
 
 def setup():
     global current
@@ -195,15 +207,7 @@ def setup():
     info = json.loads(lines[0].rstrip())
     if not info["epnum"] == json_data["data"][0]["attributes"]["season_number"]:
         send("Local data is out of data, grabbing latest episode and updating H2TMG.")
-        login = generate_rt_account(anticaptchaapikey)
-        if not type(login) == tuple:
-            send("Something went wrong...")
-            return
-        user, password = login
-        token = grab_oauth(user, password)
-        activate_first(token,card_info)
-        magic = parse_latest_video(token)
-        update_json_info(magic)
+        update()
         send("Done! Init finished!")
     else:
         send("Everything looks good! Init finished!")
@@ -213,5 +217,37 @@ def setup():
     info = json.loads(lines[0].rstrip())
     change_game(discord.Game(name="Ep " + str(info["epnum"]) + " - " + info["title"]))
 
+def wait():
+    while True:
+        time_current = time.localtime()
+        if time_current.tm_wday == 5 and time_current.tm_hour > 10:
+            r = requests.get("https://svod-be.roosterteeth.com/api/v1/seasons/rwby-volume-6/episodes?order=des&per_page=1")
+            r = json.loads(r.text)
+            last_date = r["data"][0]["attributes"]["sponsor_golive_at"]
+            year,month,day = last_date.split("-")
+            day = day.split("T")[0]
+            if not (int(year) == time_current.tm_year and int(month) == time_current.tm_mon and int(day) == time_current.tm_mday):
+                break
+        time.sleep(30)
+
+def check_loop():
+    global current
+    change_game(discord.Game(name="Waiting for new episode..."))
+    while True:
+        r = requests.get("https://svod-be.roosterteeth.com/api/v1/seasons/rwby-volume-6/episodes?order=des&per_page=1")
+        json_data = json.loads(r.text)
+        if current != json_data["data"][0]["uuid"]:
+            change_game(discord.Game(name="Updating..."))
+            send("New Episode detected!")
+            send("The title is: '" + json_data["data"][0]["attributes"]["title"] + "'")
+            update()
+            send("Done!")
+            send("@everyone , RWBY Volume 6 Episode "+ str(json_data["data"][0]["attributes"]["number"])+": "+json_data["data"][0]["attributes"]["title"]+" is now avalible at: https://how2trianglemuygud.com/rwbyvol6/")
+            current = json_data["data"][0]["uuid"]
+            change_game(discord.Game(name="Ep " + str(json_data["data"][0]["attributes"]["number"]) + " - " + json_data["data"][0]["attributes"]["title"]))
+            break
+
 setup()
-    
+while True:
+    wait()
+    check_loop()
