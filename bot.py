@@ -166,7 +166,7 @@ def update_json_info(magic):
     magic_long, magic_short = magic.split("-")
     r = requests.get("https://svod-be.roosterteeth.com/api/v1/seasons/rwby-volume-6/episodes?order=des&per_page=1")
     video = json.loads(r.text)
-    epnum = video["data"][0]["attributes"]["season_number"]
+    epnum = video["data"][0]["attributes"]["number"]
     title = video["data"][0]["attributes"]["title"]
     site_info = dict()
     site_info["epnum"] = epnum
@@ -204,7 +204,7 @@ def setup():
     lines = f.readlines()
     f.close()
     info = json.loads(lines[0].rstrip())
-    if not info["epnum"] == json_data["data"][0]["attributes"]["season_number"]:
+    if not info["epnum"] == json_data["data"][0]["attributes"]["number"]:
         send("Local data is out of data, grabbing latest episode and updating H2TMG.")
         update()
         send("Done! Init finished!")
@@ -245,6 +245,7 @@ def check_loop():
             current = json_data["data"][0]["uuid"]
             change_game(discord.Game(name="Ep " + str(json_data["data"][0]["attributes"]["number"]) + " - " + json_data["data"][0]["attributes"]["title"]))
             break
+        time.sleep(30)
 
 setup()
 while True:
