@@ -148,14 +148,14 @@ def generate_rt_account(api_key):
         send("The response didn't contain any errors, assuming we are good.")
         return email,password
 
-def parse_latest_video(token):
+def parse_latest_video(email, password):
     send("Parsing the video please wait...")
     r = requests.get("https://svod-be.roosterteeth.com/api/v1/seasons/rwby-volume-6/episodes?order=des&per_page=1")
     json_data = json.loads(r.text)
-    token = token.split("Bearer ")[1]
-    cookie_jar = {"rt_access_token":token}
+    token = grab_oauth(email, password)
+    headers = {"authorization":token}
     send("Getting the magic numbers...")
-    r = requests.get("https://svod-be.roosterteeth.com/api/v1/episodes/" + json_data["data"][0]["uuid"] + "/videos/", cookies=cookie_jar)
+    r = requests.get("https://svod-be.roosterteeth.com/api/v1/episodes/" + json_data["data"][0]["uuid"] + "/videos/", headers=headers)
     video = json.loads(r.text)
     end = video["data"][0]["attributes"]["url"][len("https://rtv3-video.roosterteeth.com/store/"):]
     pos = video["data"][0]["attributes"]["url"][len("https://rtv3-video.roosterteeth.com/store/"):].find("/ts/")
@@ -190,7 +190,7 @@ def update():
     user, password = login
     token = grab_oauth(user, password)
     activate_first(token,card_info)
-    magic = parse_latest_video(token)
+    magic = parse_latest_video(user, password)
     update_json_info(magic)
 
 def setup():
