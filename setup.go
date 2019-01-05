@@ -3,6 +3,8 @@ package main
 import (
 	"bufio"
 	"os"
+
+	"github.com/bwmarrin/discordgo"
 )
 
 type loadedData struct {
@@ -15,6 +17,7 @@ type loadedData struct {
 	CYea        string
 	CCVV        string
 	Anticaptcha string
+	Session     *discordgo.Session
 }
 
 func loadData() loadedData {
