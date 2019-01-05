@@ -152,9 +152,10 @@ def parse_latest_video(token):
     send("Parsing the video please wait...")
     r = requests.get("https://svod-be.roosterteeth.com/api/v1/seasons/rwby-volume-6/episodes?order=des&per_page=1")
     json_data = json.loads(r.text)
-    headers = {"authorization":token}
+    token = token.split("Bearer ")[1]
+    cookie_jar = {"rt_access_token":token}
     send("Getting the magic numbers...")
-    r = requests.get("https://svod-be.roosterteeth.com/api/v1/episodes/" + json_data["data"][0]["uuid"] + "/videos/", headers=headers)
+    r = requests.get("https://svod-be.roosterteeth.com/api/v1/episodes/" + json_data["data"][0]["uuid"] + "/videos/", cookies=cookie_jar)
     video = json.loads(r.text)
     end = video["data"][0]["attributes"]["url"][len("https://rtv3-video.roosterteeth.com/store/"):]
     pos = video["data"][0]["attributes"]["url"][len("https://rtv3-video.roosterteeth.com/store/"):].find("/ts/")
