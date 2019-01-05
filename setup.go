@@ -35,14 +35,16 @@ func loadData() loadedData {
 		case 2:
 			data.LName = scanner.Text()
 		case 3:
-			data.CNum = scanner.Text()
+			data.Postcode = scanner.Text()
 		case 4:
-			data.CMon = scanner.Text()
+			data.CNum = scanner.Text()
 		case 5:
-			data.CYea = scanner.Text()
+			data.CMon = scanner.Text()
 		case 6:
-			data.CCVV = scanner.Text()
+			data.CYea = scanner.Text()
 		case 7:
+			data.CCVV = scanner.Text()
+		case 8:
 			data.Anticaptcha = scanner.Text()
 		}
 		i++
