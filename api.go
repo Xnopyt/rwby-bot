@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strings"
 	"time"
 
@@ -59,6 +59,25 @@ type subData struct {
 	UUID string `json:"uuid"`
 }
 
+type episodeInfo struct {
+	Data []struct {
+		UUID       string `json:"uuid"`
+		Attributes struct {
+			Title           string    `json:"title"`
+			Number          int       `json:"number"`
+			SponsorGoliveAt time.Time `json:"sponsor_golive_at"`
+		} `json:"attributes"`
+	} `json:"data"`
+}
+
+type epVidData struct {
+	Data []struct {
+		Attributes struct {
+			URL string `json:"url"`
+		} `json:"attributes"`
+	} `json:"data"`
+}
+
 func generateRTAccount() (string, string, error) {
 	siteKey := "6LeZAyAUAAAAAKXhHLkm7QSka-pPFSRLgL7fjS_g"
 	url := "https://roosterteeth.com/signup"
@@ -73,6 +92,7 @@ func generateRTAccount() (string, string, error) {
 	email := string(user) + "@how2trianglemuygud.com"
 	password := string(pass)
 	client := &anticaptcha.Client{APIKey: data.Anticaptcha}
+	send("Solving a reCaptcha, please wait (This may take serveral minutes)...")
 	key, err := client.SendRecaptcha(url, siteKey)
 	if err != nil {
 		return email, password, err
@@ -113,16 +133,16 @@ func rtActivateFirst(token string) {
 	UUID := RESP.ID
 	respo, _ := http.PostForm("https://api.recurly.com/js/v1/token",
 		url.Values{"first_name": {data.FName}, "last_name": {data.LName}, "postal_code": {data.Postcode}, "number": {data.CNum}, "month": {data.CMon}, "year": {data.CYea}, "cvv": {data.CCVV}, "version": {"4.9.3"}, "key": {"ewr1-2beFfL1PHAOpBH03tu5h6j"}})
-	var RECURLY getUUID
+	var recurly getUUID
 	body, _ := ioutil.ReadAll(respo.Body)
-	json.Unmarshal(body, &RECURLY)
+	json.Unmarshal(body, &recurly)
 	url := "https://business-service.roosterteeth.com/api/v1/recurly_service/accounts/" + UUID + "/subscriptions"
 	var sub subscription
 	sub.Sub.Coupon = "NEEDTOREPLACE"
 	sub.Sub.FirstName = data.FName
 	sub.Sub.LastName = data.LName
 	sub.Sub.Plan = "1month"
-	sub.Sub.Token = RECURLY.ID
+	sub.Sub.Token = recurly.ID
 	JSON, _ := json.Marshal(sub)
 	jsonStr := strings.Replace(string(JSON), "\"NEEDTOREPLACE\"", "null", 1)
 	JSON = []byte(jsonStr)
@@ -132,9 +152,29 @@ func rtActivateFirst(token string) {
 	req, _ := http.NewRequest("DELETE", "https://business-service.roosterteeth.com/api/v1/recurly_service/subscriptions/"+subdata.UUID+"/cancel", nil)
 	req.Header.Set("Authorization", token)
 	client := &http.Client{}
-	respo, _ = client.Do(req)
-	strl, _ := ioutil.ReadAll(respo.Body)
-	fmt.Println(string(strl))
+	client.Do(req)
+}
+
+func rtGrabLatestEpisodeInfo() (string, string, int, time.Time) {
+	resp, _ := httpGet("https://svod-be.roosterteeth.com/api/v1/seasons/rwby-volume-6/episodes?order=des&per_page=1", nil)
+	var epinfo episodeInfo
+	json.Unmarshal([]byte(resp), &epinfo)
+	return epinfo.Data[0].UUID, epinfo.Data[0].Attributes.Title, epinfo.Data[0].Attributes.Number, epinfo.Data[0].Attributes.SponsorGoliveAt
+}
+
+func rtGrabLatestEpisode(email string, password string) (magicShort string, magicLong string) {
+	uuid, _, _, _ := rtGrabLatestEpisodeInfo()
+	headers := [][]string{[]string{"Authorization", rtAuthenticate(email, password)}}
+	url := "https://svod-be.roosterteeth.com/api/v1/episodes/" + uuid + "/videos/"
+	resp, _ := httpGet(url, headers)
+	var vidData epVidData
+	json.Unmarshal([]byte(resp), &vidData)
+	txt := strings.TrimPrefix(vidData.Data[0].Attributes.URL, "https://rtv3-video.roosterteeth.com/store/")
+	r, _ := regexp.Compile("/ts/*.+")
+	end := r.FindString(txt)
+	txt = strings.TrimSuffix(txt, end)
+	magic := strings.Split(txt, "-")
+	return magic[1], magic[0]
 }
 
 func httpGet(url string, headers [][]string) (response string, code int) {
