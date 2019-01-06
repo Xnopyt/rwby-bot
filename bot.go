@@ -132,6 +132,7 @@ func check() {
 			send("The title is: " + title)
 			send("Running updater...")
 			update()
+			send("New RWBY, " + title + " , is how avalible at https://how2trianglemuygud.com/rwbyvol6 @everyone")
 			break
 		}
 		time.Sleep(30 * time.Second)
