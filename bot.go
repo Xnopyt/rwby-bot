@@ -109,8 +109,8 @@ func update() {
 }
 
 func wait() {
+	fmt.Println("Wait loop begin")
 	for {
-		fmt.Println("Wait loop begin")
 		t := time.Now()
 		if t.Weekday() == 6 && t.Hour() > 9 {
 			_, _, _, epTime := rtGrabLatestEpisodeInfo()
