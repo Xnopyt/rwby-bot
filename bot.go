@@ -82,7 +82,7 @@ func update() {
 	}
 	send("Authenticating with RT...")
 	token := rtAuthenticate(email, password)
-	send("Starting a FISRT trial...")
+	send("Starting a FIRST trial...")
 	rtActivateFirst(token)
 	send("Grabbing the lastest episode...")
 	UUID, title, epnum, _ := rtGrabLatestEpisodeInfo()
