@@ -47,11 +47,11 @@ type getUUID struct {
 
 type subscription struct {
 	Sub struct {
-		FirstName string `json:"first_name"`
-		LastName  string `json:"last_name"`
-		Coupon    string `json:"coupon_code"`
-		Plan      string `json:"plan_code"`
-		Token     string `json:"recurly_token"`
+		FirstName string  `json:"first_name"`
+		LastName  string  `json:"last_name"`
+		Coupon    *string `json:"coupon_code"`
+		Plan      string  `json:"plan_code"`
+		Token     string  `json:"recurly_token"`
 	} `json:"subscription"`
 }
 
@@ -138,14 +138,12 @@ func rtActivateFirst(token string) {
 	json.Unmarshal(body, &recurly)
 	url := "https://business-service.roosterteeth.com/api/v1/recurly_service/accounts/" + UUID + "/subscriptions"
 	var sub subscription
-	sub.Sub.Coupon = "NEEDTOREPLACE"
+	sub.Sub.Coupon = nil
 	sub.Sub.FirstName = data.FName
 	sub.Sub.LastName = data.LName
 	sub.Sub.Plan = "1month"
 	sub.Sub.Token = recurly.ID
 	JSON, _ := json.Marshal(sub)
-	jsonStr := strings.Replace(string(JSON), "\"NEEDTOREPLACE\"", "null", 1)
-	JSON = []byte(jsonStr)
 	r, _ := httpPostJSON(url, headers, JSON)
 	var subdata subData
 	json.Unmarshal([]byte(r), &subdata)
