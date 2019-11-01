@@ -40,6 +40,7 @@
             }
         }
     </style>
+    <title>Xnopyt - RWBY</title>
 </head>
 <body>
     <div class="container">
@@ -66,5 +67,6 @@
        }
     }});
     videojshls.controlBar.addChild('QualitySelector');
+    videojshls.play()
 </script>
 </html>
