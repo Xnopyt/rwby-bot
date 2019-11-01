@@ -21,7 +21,7 @@
     <script src="https://unpkg.com/videojs-contrib-hls@5.12.2/dist/videojs-contrib-hls.js"></script>
     <script src="https://unpkg.com/silvermine-videojs-quality-selector/dist/js/silvermine-videojs-quality-selector.min.js"></script>
     <link href="../assets/favicon.svg" rel="icon">
-    <title>Xnopyt - Home</title>
+    <title>Xnopyt - RWBY</title>
     <style>
         .vplayer {
             width: 800px;
