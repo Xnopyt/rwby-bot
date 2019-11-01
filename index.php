@@ -26,6 +26,7 @@
 <body>
     <div class="container">
         <p class="title"><img src="../assets/logo-greyscale.svg">nopyt - RWBY Vol 7</p>
+        <p class="text subhead">Episode <?=$epnum?> - <?=$eptitle?></p>
         <br />
         <center><video id="my_video_1" class="video-js vjs-default-skin" controls preload="auto" width="800" height="450" autoplay="true" data-setup='{}'>
             <source src="https://rtv3-roosterteeth.akamaized.net/store/<?=$magic_long?>-<?=$magic_short?>/ts/<?=$magic_short?>-hls_1080p-store-<?=$magic_long?>.m3u8" type="application/x-mpegURL" label="1080p" selected="true">
