@@ -27,13 +27,13 @@
     <div class="container">
         <p class="title"><img src="../assets/logo-greyscale.svg">nopyt - RWBY Vol 7</p>
         <br />
-        <video id="my_video_1" class="video-js vjs-default-skin" controls preload="auto" width="800" height="450" autoplay="true" data-setup='{}'>
+        <center><video id="my_video_1" class="video-js vjs-default-skin" controls preload="auto" width="800" height="450" autoplay="true" data-setup='{}'>
             <source src="https://rtv3-roosterteeth.akamaized.net/store/<?=$magic_long?>-<?=$magic_short?>/ts/<?=$magic_short?>-hls_1080p-store-<?=$magic_long?>.m3u8" type="application/x-mpegURL" label="1080p" selected="true">
             <source src="https://rtv3-roosterteeth.akamaized.net/store/<?=$magic_long?>-<?=$magic_short?>/ts/<?=$magic_short?>-hls_720p-store-<?=$magic_long?>.m3u8" type="application/x-mpegURL" label="720p">
             <source src="https://rtv3-roosterteeth.akamaized.net/store/<?=$magic_long?>-<?=$magic_short?>/ts/<?=$magic_short?>-hls_480p-store-<?=$magic_long?>.m3u8" type="application/x-mpegURL" label="480p">
             <source src="https://rtv3-roosterteeth.akamaized.net/store/<?=$magic_long?>-<?=$magic_short?>/ts/<?=$magic_short?>-hls_360p-store-<?=$magic_long?>.m3u8" type="application/x-mpegURL" label="360p">
             <source src="https://rtv3-roosterteeth.akamaized.net/store/<?=$magic_long?>-<?=$magic_short?>/ts/<?=$magic_short?>-hls_240p-store-<?=$magic_long?>.m3u8" type="application/x-mpegURL" label="240p">
-        </video>
+        </video></center>
         <br /> <br />
     </div>
 </body>

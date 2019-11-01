@@ -141,7 +141,7 @@ func check() {
 				send("The title is: " + ep.Title)
 				send("Running updater...")
 				update()
-				send("New RWBY, " + ep.Title + " , is now avalible at https://how2trianglemuygud.com/rwbyvol6 @everyone")
+				send("New RWBY, " + ep.Title + " , is now avalible at https://xnopyt.info/rwby @everyone")
 				break
 			}
 		}
