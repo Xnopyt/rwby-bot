@@ -78,6 +78,13 @@ type epVidData struct {
 	} `json:"data"`
 }
 
+type epInfo struct {
+	UUID   string
+	Title  string
+	EpNum  int
+	GoLive time.Time
+}
+
 func generateRTAccount() (string, string, error) {
 	siteKey := "6LeZAyAUAAAAAKXhHLkm7QSka-pPFSRLgL7fjS_g"
 	url := "https://roosterteeth.com/signup"
@@ -93,7 +100,7 @@ func generateRTAccount() (string, string, error) {
 	password := string(pass)
 	client := &anticaptcha.Client{APIKey: data.Anticaptcha}
 	send("Solving a reCaptcha, please wait (This may take serveral minutes)...")
-	key, err := client.SendRecaptcha(url, siteKey)
+	key, err := client.SendRecaptcha(url, siteKey, time.Minute*3)
 	if err != nil {
 		return email, password, err
 	}
@@ -153,21 +160,29 @@ func rtActivateFirst(token string) {
 	client.Do(req)
 }
 
-func rtGrabLatestEpisodeInfo() (string, string, int, time.Time) {
-	resp, _ := httpGet("https://svod-be.roosterteeth.com/api/v1/seasons/rwby-volume-6/episodes?order=des&per_page=1", nil)
+func rtGrabLatestEpisodeInfo() *epInfo {
+	resp, _ := httpGet("https://svod-be.roosterteeth.com/api/v1/seasons/rwby-volume-7/episodes?order=des&per_page=1", nil)
 	var epinfo episodeInfo
 	json.Unmarshal([]byte(resp), &epinfo)
-	return epinfo.Data[0].UUID, epinfo.Data[0].Attributes.Title, epinfo.Data[0].Attributes.Number, epinfo.Data[0].Attributes.SponsorGoliveAt
+	var ep epInfo
+	if len(epinfo.Data) == 0 {
+		return nil
+	}
+	ep.UUID = epinfo.Data[0].UUID
+	ep.Title = epinfo.Data[0].Attributes.Title
+	ep.EpNum = epinfo.Data[0].Attributes.Number
+	ep.GoLive = epinfo.Data[0].Attributes.SponsorGoliveAt
+	return &ep
 }
 
 func rtGrabLatestEpisode(email string, password string) (magicShort string, magicLong string) {
-	uuid, _, _, _ := rtGrabLatestEpisodeInfo()
+	ep := rtGrabLatestEpisodeInfo()
 	headers := [][]string{[]string{"Authorization", rtAuthenticate(email, password)}}
-	url := "https://svod-be.roosterteeth.com/api/v1/episodes/" + uuid + "/videos/"
+	url := "https://svod-be.roosterteeth.com/api/v1/episodes/" + ep.UUID + "/videos/"
 	resp, _ := httpGet(url, headers)
 	var vidData epVidData
 	json.Unmarshal([]byte(resp), &vidData)
-	txt := strings.TrimPrefix(vidData.Data[0].Attributes.URL, "https://rtv3-video.roosterteeth.com/store/")
+	txt := strings.TrimPrefix(vidData.Data[0].Attributes.URL, "https://rtv3-roosterteeth.akamaized.net/store/")
 	r, _ := regexp.Compile("/ts/*.+")
 	end := r.FindString(txt)
 	txt = strings.TrimSuffix(txt, end)
