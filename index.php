@@ -48,5 +48,6 @@
        }
     }});
     videojshls.controlBar.addChild('QualitySelector');
+    videojshls.play()
 </script>
 </html>
