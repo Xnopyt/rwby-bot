@@ -100,10 +100,13 @@ func generateRTAccount() (string, string, error) {
 	password := string(pass)
 	client := &anticaptcha.Client{APIKey: data.Anticaptcha}
 	send("Solving a reCaptcha, please wait (This may take serveral minutes)...")
+	createCaptchaMessage()
 	key, err := client.SendRecaptcha(url, siteKey, time.Minute*3)
 	if err != nil {
 		return email, password, err
 	}
+	finalizeCaptchaMessage()
+	send("Using `" + key + "` as recaptcha response...")
 	var post createAccount
 	post.User.Email = email
 	post.User.Password = password

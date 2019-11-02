@@ -13,6 +13,7 @@ import (
 
 var data loadedData
 var cUUID string
+var recaptcha string
 
 type siteData struct {
 	UUID       string `json:"uuid"`
@@ -153,4 +154,23 @@ func check() {
 func send(msg string) {
 	data.Session.ChannelMessageSend("639789890330034208", msg)
 	fmt.Println(msg)
+}
+
+func createCaptchaMessage() {
+	st, _ := data.Session.ChannelMessageSendComplex("639789890330034208", &discordgo.MessageSend{
+		Embed: &discordgo.MessageEmbed{
+			Image: &discordgo.MessageEmbedImage{
+				URL: "https://anti-captcha.com/images/recaptcha-processing.gif",
+			},
+		},
+	})
+	recaptcha = st.ID
+}
+
+func finalizeCaptchaMessage() {
+	data.Session.ChannelMessageEditEmbed("639789890330034208", recaptcha, &discordgo.MessageEmbed{
+		Image: &discordgo.MessageEmbedImage{
+			URL: "https://anti-captcha.com/images/recaptcha-ready.gif",
+		},
+	})
 }
