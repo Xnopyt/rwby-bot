@@ -120,10 +120,11 @@ func wait() {
 		t := time.Now()
 		if t.Weekday() == 6 && t.Hour() > 9 {
 			ep := rtGrabLatestEpisodeInfo()
-			if ep != nil {
-				if !(ep.GoLive.Day() == t.Day() && t.Month() == ep.GoLive.Month() && ep.GoLive.Year() == t.Year()) {
-					break
-				}
+			if ep == nil {
+				break
+			}
+			if !(ep.GoLive.Day() == t.Day() && t.Month() == ep.GoLive.Month() && ep.GoLive.Year() == t.Year()) {
+				break
 			}
 		}
 		time.Sleep(30 * time.Second)
