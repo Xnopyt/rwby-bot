@@ -106,7 +106,7 @@ func generateRTAccount() (string, string, error) {
 		return email, password, err
 	}
 	finalizeCaptchaMessage()
-	send("Using `" + key + "` as recaptcha response...")
+	send("Using ```" + key + "``` as recaptcha response...")
 	var post createAccount
 	post.User.Email = email
 	post.User.Password = password
