@@ -11,7 +11,7 @@ if (tokenlong == null || tokenshort == null) {
 if (ep != null && title != null) {
     document.getElementById("title").innerHTML = "Episode " + ep + " - " + title
 } else {
-    docuemnt.body.removeChild(document.getElementById("title"))
+   document.getElementById("title").parentElement.removeChild(document.getElementById("title"))
 }
 urlstart = "https://rtv3-roosterteeth.akamaized.net/store/"+tokenlong+"-"+tokenshort+"/ts/"+tokenshort+"-hls_"
 urlend = "p-store-"+tokenlong+".m3u8"
@@ -34,8 +34,8 @@ videojshls.play()
 
 function showerror() {
     document.getElementById("player").innerHTML = '<p class="text subhead">Failed to load video</p><p class="text">Did you get this link from RWBY bot?</p>'
-    document.body.removeChild(document.getElementById("break"))
+    document.getElementById("break").parentElement.removeChild(document.getElementById("break"))
     if (document.getElementById("title") != null) {
-        document.body.removeChild(document.getElementById("title"))
+        document.getElementById("title").parentElement.removeChild(document.getElementById("title"))
     }
 }
