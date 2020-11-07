@@ -37,7 +37,8 @@
 <body>
     <div class="container">
         <p class="title"><img src="../assets/logo-greyscale.svg">nopyt - RWBY Vol 8</p>
-        <br />
+        <p id="title" class="text subhead"></p>
+        <br id="break" />
         <center id="player"><video id="rwby" class="video-js vjs-default-skin vjs-big-play-centered vplayer" controls preload="auto" autoplay="true" data-setup='{}'>
             <source id="1080p" src="" type="application/x-mpegURL" label="1080p" selected="true">
             <source id="720p" src="" type="application/x-mpegURL" label="720p">
@@ -48,26 +49,5 @@
         <br /> <br />
     </div>
 </body>
-<script>
-    queryString = window.location.search;
-    urlParams = new URLSearchParams(queryString);
-    document.getElementById("1080p").src = "https://rtv3-roosterteeth.akamaized.net/store/"+urlParams.get("tokenlong")+"-"+urlParams.get("tokenshort")+"/ts/"+urlParams.get("tokenshort")+"-hls_1080p-store-"+urlParams.get("tokenlong")+".m3u8"
-    document.getElementById("720p").src = "https://rtv3-roosterteeth.akamaized.net/store/"+urlParams.get("tokenlong")+"-"+urlParams.get("tokenshort")+"/ts/"+urlParams.get("tokenshort")+"-hls_720p-store-"+urlParams.get("tokenlong")+".m3u8"
-    document.getElementById("480p").src = "https://rtv3-roosterteeth.akamaized.net/store/"+urlParams.get("tokenlong")+"-"+urlParams.get("tokenshort")+"/ts/"+urlParams.get("tokenshort")+"-hls_480p-store-"+urlParams.get("tokenlong")+".m3u8"
-    document.getElementById("360p").src = "https://rtv3-roosterteeth.akamaized.net/store/"+urlParams.get("tokenlong")+"-"+urlParams.get("tokenshort")+"/ts/"+urlParams.get("tokenshort")+"-hls_360p-store-"+urlParams.get("tokenlong")+".m3u8"
-    document.getElementById("240p").src = "https://rtv3-roosterteeth.akamaized.net/store/"+urlParams.get("tokenlong")+"-"+urlParams.get("tokenshort")+"/ts/"+urlParams.get("tokenshort")+"-hls_240p-store-"+urlParams.get("tokenlong")+".m3u8"
-    let videojshls= videojs('rwby', {  html5: {  
-        nativeAudioTracks: false,
-        nativeVideoTracks: false,
-        hls: {
-            debug: true,
-            overrideNative: false
-       }
-    }});
-    videojshls.on("error", function() {
-        document.getElementById("player").innerHTML = '<p class="text subhead">Failed to load video</p><p class="text">Did you get this link from RWBY bot?</p>'
-    })
-    videojshls.controlBar.addChild('QualitySelector');
-    videojshls.play()
-</script>
+<script src="./player.js"></script>
 </html>

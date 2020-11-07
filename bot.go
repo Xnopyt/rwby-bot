@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/url"
 	"os"
 	"strconv"
 	"time"
@@ -118,7 +119,7 @@ func update() {
 	f.Close()
 	cUUID = ep.UUID
 	ses.UpdateStatus(0, "Ep "+strconv.Itoa(ep.EpNum)+" - "+ep.Title)
-	send("https://xnopyt.info/rwby?tokenshort=" + magicShort + "&tokenlong=" + magicLong)
+	send("https://xnopyt.info/rwby?tokenshort=" + magicShort + "&tokenlong=" + magicLong + "&ep=" + strconv.Itoa(ep.EpNum) + "&title=" + url.QueryEscape(ep.Title))
 }
 
 func send(msg string) {
