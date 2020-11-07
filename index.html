@@ -51,6 +51,11 @@
 <script>
     queryString = window.location.search;
     urlParams = new URLSearchParams(queryString);
+    document.getElementById("1080p").src = "https://rtv3-roosterteeth.akamaized.net/store/"+urlParams.get("tokenlong")+"-"+urlParams.get("tokenshort")+"/ts/"+urlParams.get("tokenshort")+"-hls_1080p-store-"+urlParams.get("tokenlong")+".m3u8"
+    document.getElementById("720p").src = "https://rtv3-roosterteeth.akamaized.net/store/"+urlParams.get("tokenlong")+"-"+urlParams.get("tokenshort")+"/ts/"+urlParams.get("tokenshort")+"-hls_720p-store-"+urlParams.get("tokenlong")+".m3u8"
+    document.getElementById("480p").src = "https://rtv3-roosterteeth.akamaized.net/store/"+urlParams.get("tokenlong")+"-"+urlParams.get("tokenshort")+"/ts/"+urlParams.get("tokenshort")+"-hls_480p-store-"+urlParams.get("tokenlong")+".m3u8"
+    document.getElementById("360p").src = "https://rtv3-roosterteeth.akamaized.net/store/"+urlParams.get("tokenlong")+"-"+urlParams.get("tokenshort")+"/ts/"+urlParams.get("tokenshort")+"-hls_360p-store-"+urlParams.get("tokenlong")+".m3u8"
+    document.getElementById("240p").src = "https://rtv3-roosterteeth.akamaized.net/store/"+urlParams.get("tokenlong")+"-"+urlParams.get("tokenshort")+"/ts/"+urlParams.get("tokenshort")+"-hls_240p-store-"+urlParams.get("tokenlong")+".m3u8"
     let videojshls= videojs('rwby', {  html5: {  
         nativeAudioTracks: false,
         nativeVideoTracks: false,
@@ -60,11 +65,6 @@
        }
     }});
     videojshls.controlBar.addChild('QualitySelector');
-    document.getElementById("1080p").src = "https://rtv3-roosterteeth.akamaized.net/store/"+urlParams.get("tokenlong")+"-"+urlParams.get("tokenshort")+"/ts/"+urlParams.get("tokenshort")+"-hls_1080p-store-"+urlParams.get("tokenlong")+".m3u8"
-    document.getElementById("720p").src = "https://rtv3-roosterteeth.akamaized.net/store/"+urlParams.get("tokenlong")+"-"+urlParams.get("tokenshort")+"/ts/"+urlParams.get("tokenshort")+"-hls_720p-store-"+urlParams.get("tokenlong")+".m3u8"
-    document.getElementById("480p").src = "https://rtv3-roosterteeth.akamaized.net/store/"+urlParams.get("tokenlong")+"-"+urlParams.get("tokenshort")+"/ts/"+urlParams.get("tokenshort")+"-hls_480p-store-"+urlParams.get("tokenlong")+".m3u8"
-    document.getElementById("360p").src = "https://rtv3-roosterteeth.akamaized.net/store/"+urlParams.get("tokenlong")+"-"+urlParams.get("tokenshort")+"/ts/"+urlParams.get("tokenshort")+"-hls_360p-store-"+urlParams.get("tokenlong")+".m3u8"
-    document.getElementById("240p").src = "https://rtv3-roosterteeth.akamaized.net/store/"+urlParams.get("tokenlong")+"-"+urlParams.get("tokenshort")+"/ts/"+urlParams.get("tokenshort")+"-hls_240p-store-"+urlParams.get("tokenlong")+".m3u8"
     videojshls.play()
 </script>
 </html>
