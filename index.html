@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="../styles/home.css">
+    <link href="https://fonts.googleapis.com/css?family=Red+Hat+Text&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/video.js@6.4.0/dist/video-js.css" rel="stylesheet">
+    <link href="https://unpkg.com/silvermine-videojs-quality-selector@1.1.2/dist/css/quality-selector.css" rel="stylesheet">
+    <script src="https://unpkg.com/video.js@6.4.0/dist/video.js"></script>
+    <script src="https://unpkg.com/videojs-flash@2.0.1/dist/videojs-flash.js"></script>
+    <script src="https://unpkg.com/videojs-contrib-hls@5.12.2/dist/videojs-contrib-hls.js"></script>
+    <script src="https://unpkg.com/silvermine-videojs-quality-selector/dist/js/silvermine-videojs-quality-selector.min.js"></script>
+    <link href="../assets/favicon.svg" rel="icon">
+    <title>Xnopyt - RWBY</title>
+    <style>
+        .vplayer {
+            width: 800px;
+            height: 480px;
+        }
+        @media screen and (max-width: 950px) {
+            .vplayer {
+                width: 400px;
+                height: 250px;
+            }
+            @media screen and (max-width: 650px) {
+                .vplayer {
+                    width: 300px;
+                    height: 200px
+                }
+            }
+        }
+    </style>
+    <title>Xnopyt - RWBY</title>
+</head>
+<body>
+    <div class="container">
+        <p class="title"><img src="../assets/logo-greyscale.svg">nopyt - RWBY Vol 8</p>
+        <br />
+        <center><video id="rwby" class="video-js vjs-default-skin vjs-big-play-centered vplayer" controls preload="auto" autoplay="true" data-setup='{}'>
+            <source id="1080p" src="" type="application/x-mpegURL" label="1080p" selected="true">
+            <source id="720p" src="" type="application/x-mpegURL" label="720p">
+            <source id="480p" src="" type="application/x-mpegURL" label="480p">
+            <source id="360p" src="" type="application/x-mpegURL" label="360p">
+            <source id="240p" src="" type="application/x-mpegURL" label="240p">
+        </video></center>
+        <br /> <br />
+    </div>
+</body>
+<script>
+    queryString = window.location.search;
+    urlParams = new URLSearchParams(queryString);
+    let videojshls= videojs('rwby', {  html5: {  
+        nativeAudioTracks: false,
+        nativeVideoTracks: false,
+        hls: {
+            debug: true,
+            overrideNative: false
+       }
+    }});
+    videojshls.controlBar.addChild('QualitySelector');
+    document.getElementById("1080p").src = "https://rtv3-roosterteeth.akamaized.net/store/"+urlParams.get("tokenlong")+"-"+urlParams.get("tokenshort")+"/ts/"+urlParams.get("tokenshort")+"-hls_1080p-store-"+urlParams.get("tokenlong")+".m3u8"
+    document.getElementById("720p").src = "https://rtv3-roosterteeth.akamaized.net/store/"+urlParams.get("tokenlong")+"-"+urlParams.get("tokenshort")+"/ts/"+urlParams.get("tokenshort")+"-hls_720p-store-"+urlParams.get("tokenlong")+".m3u8"
+    document.getElementById("480p").src = "https://rtv3-roosterteeth.akamaized.net/store/"+urlParams.get("tokenlong")+"-"+urlParams.get("tokenshort")+"/ts/"+urlParams.get("tokenshort")+"-hls_480p-store-"+urlParams.get("tokenlong")+".m3u8"
+    document.getElementById("360p").src = "https://rtv3-roosterteeth.akamaized.net/store/"+urlParams.get("tokenlong")+"-"+urlParams.get("tokenshort")+"/ts/"+urlParams.get("tokenshort")+"-hls_360p-store-"+urlParams.get("tokenlong")+".m3u8"
+    document.getElementById("240p").src = "https://rtv3-roosterteeth.akamaized.net/store/"+urlParams.get("tokenlong")+"-"+urlParams.get("tokenshort")+"/ts/"+urlParams.get("tokenshort")+"-hls_240p-store-"+urlParams.get("tokenlong")+".m3u8"
+    videojshls.play()
+</script>
+</html>
