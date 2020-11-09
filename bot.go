@@ -19,11 +19,13 @@ var ses *discordgo.Session
 var cUUID string
 
 type siteData struct {
-	UUID       string `json:"uuid"`
-	Title      string `json:"title"`
-	EpNum      int    `json:"epnum"`
-	MagicShort string `json:"magic_short"`
-	MagicLong  string `json:"magic_long"`
+	UUID        string `json:"uuid"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Thumb       string `json:"thumb"`
+	EpNum       int    `json:"epnum"`
+	MagicShort  string `json:"magic_short"`
+	MagicLong   string `json:"magic_long"`
 }
 
 func main() {
@@ -77,7 +79,7 @@ func update() {
 		panic(errors.New("Could not pull latest episode info."))
 	}
 	send("New episode detected!")
-	send("The title is: " + ep.Title)
+	send("Please Wait...")
 	email, password, err := generateRTAccount()
 	if err != nil {
 		send("<@!360457422181105666> , Failed to generate a new account. The server sent:")
@@ -111,6 +113,8 @@ func update() {
 	var store siteData
 	store.UUID = ep.UUID
 	store.Title = ep.Title
+	store.Description = ep.Description
+	store.Thumb = ep.Thumb
 	store.EpNum = ep.EpNum
 	store.MagicShort = magicShort
 	store.MagicLong = magicLong
@@ -119,7 +123,17 @@ func update() {
 	f.Close()
 	cUUID = ep.UUID
 	ses.UpdateStatus(0, "Ep "+strconv.Itoa(ep.EpNum)+" - "+ep.Title)
-	send("https://xnopyt.info/rwby?tokenshort=" + magicShort + "&tokenlong=" + magicLong + "&ep=" + strconv.Itoa(ep.EpNum) + "&title=" + url.QueryEscape(ep.Title))
+	ses.ChannelMessageSendEmbed(config.Channel, &discordgo.MessageEmbed{
+		Type:        discordgo.EmbedTypeLink,
+		URL:         "https://xnopyt.info/rwby?tokenshort=" + magicShort + "&tokenlong=" + magicLong + "&ep=" + strconv.Itoa(ep.EpNum) + "&title=" + url.QueryEscape(ep.Title),
+		Title:       "Episode " + strconv.Itoa(ep.EpNum) + " - " + ep.Title,
+		Description: ep.Description,
+		Image: &discordgo.MessageEmbedImage{
+			URL:    ep.Thumb,
+			Width:  608,
+			Height: 342,
+		},
+	})
 }
 
 func send(msg string) {

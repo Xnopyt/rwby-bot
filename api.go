@@ -66,7 +66,15 @@ type episodeInfo struct {
 			Title           string    `json:"title"`
 			Number          int       `json:"number"`
 			SponsorGoliveAt time.Time `json:"sponsor_golive_at"`
+			Description     string    `json:"description"`
 		} `json:"attributes"`
+		Included struct {
+			Images []struct {
+				Attributes struct {
+					Thumb string `json:"thumb"`
+				} `json:"attributes"`
+			} `json:"images"`
+		} `json:"included"`
 	} `json:"data"`
 }
 
@@ -79,10 +87,12 @@ type epVidData struct {
 }
 
 type epInfo struct {
-	UUID   string
-	Title  string
-	EpNum  int
-	GoLive time.Time
+	UUID        string
+	Title       string
+	Description string
+	Thumb       string
+	EpNum       int
+	GoLive      time.Time
 }
 
 func generateRTAccount() (string, string, error) {
@@ -180,6 +190,8 @@ func rtGrabLatestEpisodeInfo() *epInfo {
 	}
 	ep.UUID = epinfo.Data[0].UUID
 	ep.Title = epinfo.Data[0].Attributes.Title
+	ep.Description = epinfo.Data[0].Attributes.Description
+	ep.Thumb = epinfo.Data[0].Included.Images[0].Attributes.Thumb
 	ep.EpNum = epinfo.Data[0].Attributes.Number
 	ep.GoLive = epinfo.Data[0].Attributes.SponsorGoliveAt
 	return &ep
