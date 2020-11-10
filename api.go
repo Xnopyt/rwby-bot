@@ -133,7 +133,7 @@ func generateRTAccount() (string, string, error) {
 }
 
 func rtActivateFirst(token string) error {
-	headers := [][]string{[]string{"Authorization", token}}
+	headers := [][]string{{"Authorization", token}}
 	resp, _ := httpGet("https://business-service.roosterteeth.com/api/v1/me", headers)
 	var RESP getUUID
 	json.Unmarshal([]byte(resp), &RESP)
@@ -208,7 +208,7 @@ func rtGrabLatestEpisode(email string, password string) (magicShort string, magi
 	if err != nil {
 		return
 	}
-	headers := [][]string{[]string{"Authorization", token}}
+	headers := [][]string{{"Authorization", token}}
 	url := "https://svod-be.roosterteeth.com/api/v1/episodes/" + ep.UUID + "/videos/"
 	resp, code := httpGet(url, headers)
 	if code != 200 {
