@@ -66,6 +66,7 @@ func main() {
 		send("No episodes detected, waiting for Volume 8...")
 	}
 	for {
+		hold()
 		wait()
 		check()
 	}
@@ -171,5 +172,19 @@ func check() {
 			}
 		}
 		time.Sleep(30 * time.Second)
+	}
+}
+
+func hold() {
+	fmt.Println("Hold loop begin...")
+	ep := rtGrabLatestEpisodeInfo()
+	for {
+		t := time.Now()
+		if ep == nil {
+			break
+		}
+		if !(ep.GoLive.Day() == t.Day() && ep.GoLive.Month() == t.Month() && ep.GoLive.Year() == t.Year()) {
+			break
+		}
 	}
 }
