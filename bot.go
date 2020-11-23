@@ -186,5 +186,6 @@ func hold() {
 		if !(ep.GoLive.Day() == t.Day() && ep.GoLive.Month() == t.Month() && ep.GoLive.Year() == t.Year()) {
 			break
 		}
+		time.Sleep(30 * time.Second)
 	}
 }
